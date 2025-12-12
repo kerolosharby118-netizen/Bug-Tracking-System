@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class Bug implements Serializable {
+public class Bug implements Serializable, IDable {
     private static final long serialVersionUID = 1L;
 
     private static int counter = 1;
@@ -35,7 +35,11 @@ public class Bug implements Serializable {
     }
 
     // getters / setters
+
+    //
+    @Override
     public int getId() { return id; }
+
     public String getName() { return name; }
     public String getType() { return type; }
     public String getPriority() { return priority; }
