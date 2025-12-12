@@ -1,26 +1,28 @@
 package bt.models;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class Bug implements Serializable, IDable {
-    private static final long serialVersionUID = 1L;
+
+public class Bug extends BaseEntity {
+
+
 
     private static int counter = 1;
-    private int id;
+
     private String name;
     private String type;
     private String priority;
     private String level;
     private String projectName;
-    private String date; // stored as string for simplicity
-    private String status; // Open, In Progress, Closed
-    private String assignedTo; // developer username
-    private String reportedBy; // tester username
-    private String screenshotPath; // path to file
+    private String date;
+    private String status;
+    private String assignedTo;
+    private String reportedBy;
+    private String screenshotPath;
 
     public Bug(String name, String type, String priority, String level, String projectName, String reportedBy, String screenshotPath) {
+
         this.id = counter++;
         this.name = name;
         this.type = type;
@@ -34,11 +36,14 @@ public class Bug implements Serializable, IDable {
         this.assignedTo = "";
     }
 
-    // getters / setters
 
-    //
     @Override
-    public int getId() { return id; }
+    public String getDisplayInfo() {
+        return "BUG #" + this.id + ": " + this.name + " [" + this.status + "] - Assigned to: " + this.assignedTo;
+    }
+
+
+
 
     public String getName() { return name; }
     public String getType() { return type; }
@@ -54,6 +59,5 @@ public class Bug implements Serializable, IDable {
     public void setStatus(String status) { this.status = status; }
     public void setAssignedTo(String assignedTo) { this.assignedTo = assignedTo; }
 
-    // used after loading saved list to restore counter
     public static void setCounter(int c) { counter = c; }
 }
