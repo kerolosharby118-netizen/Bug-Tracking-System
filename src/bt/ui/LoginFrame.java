@@ -1,5 +1,6 @@
 package bt.ui;
 
+import bt.data.Database;  // مهم جدًا نضيفه
 import bt.models.User;
 
 import javax.swing.*;
@@ -63,32 +64,12 @@ public class LoginFrame extends JFrame {
         exit.addActionListener(a -> System.exit(0));
     }
 
-    // ----------------------------------------
-    //  Users ثابتين بدون Database
-    // ----------------------------------------
-    private User findUserLocal(String username) {
-
-        if (username.equalsIgnoreCase("admin"))
-            return new User("admin", "123", "Admin");
-
-        if (username.equalsIgnoreCase("tester"))
-            return new User("tester", "123", "Tester");
-
-        if (username.equalsIgnoreCase("dev"))
-            return new User("dev", "123", "Developer");
-
-        if (username.equalsIgnoreCase("manager"))
-            return new User("manager", "123", "PM");
-
-        return null;
-    }
-
     private void doLogin() {
         String user = txtUser.getText().trim();
         String pass = new String(txtPass.getPassword()).trim();
         String role = cbRole.getSelectedItem().toString();
 
-        User u = findUserLocal(user);
+        User u = Database.findUser(user);
         if (u == null) {
             JOptionPane.showMessageDialog(this, "User not found");
             return;
@@ -99,7 +80,6 @@ public class LoginFrame extends JFrame {
             return;
         }
 
-        // Role match
         if (!u.getRole().equalsIgnoreCase(role)) {
             JOptionPane.showMessageDialog(this, "Role mismatch");
             return;
