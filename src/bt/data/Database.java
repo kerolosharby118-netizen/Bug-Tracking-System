@@ -21,7 +21,7 @@ public class Database {
         } else {
             // create default users
             users = new ArrayList<>();
-            users.add(new User("admin", "admin123", "Admin"));
+            users.add(new User("admin", "a123", "Admin"));
             users.add(new User("tester1", "t123", "Tester"));
             users.add(new User("dev1", "d123", "Developer"));
             users.add(new User("pm1", "p123", "PM"));
