@@ -11,9 +11,12 @@ import java.io.File;
 
 @SuppressWarnings("serial")
 public class TesterFrame extends JFrame {
+    // define global variables
     private User tester;
     private DefaultTableModel tableModel;
 
+    // takes a tester of type user as a parameter
+    // sets default settings for swing
     public TesterFrame(User tester) {
         this.tester = tester;
         setTitle("Tester Dashboard - " + tester.getUsername());
@@ -24,11 +27,13 @@ public class TesterFrame extends JFrame {
     }
 
     private void init() {
+        // Panel header
         JPanel top = new JPanel();
         JLabel head = new JLabel("Tester Panel");
         head.setFont(new Font("Arial", Font.BOLD, 18));
         top.add(head);
 
+        // top buttons
         JButton addBug = new JButton("Add Bug");
         top.add(addBug);
 
@@ -37,13 +42,14 @@ public class TesterFrame extends JFrame {
 
         add(top, BorderLayout.NORTH);
 
-        // Table
+        // defines the main content which is the bug table with columns and rows
         String[] cols = {"ID","Name","Project","Priority","Level","Status","AssignedTo","ReportedBy","Screenshot"};
         tableModel = new DefaultTableModel(cols, 0);
         JTable table = new JTable(tableModel);
         JScrollPane sp = new JScrollPane(table);
         add(sp, BorderLayout.CENTER);
 
+        // aligns the right section of the frame and adds the assign developer and screenshot buttons
         JPanel right = new JPanel();
         right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
         JButton assign = new JButton("Assign to Developer");
@@ -53,9 +59,11 @@ public class TesterFrame extends JFrame {
         right.add(view);
         add(right, BorderLayout.EAST);
 
+        // removes all rows and repopulates them on frame startup
         refreshTable();
 
         addBug.addActionListener(e -> {
+            // initializes the add bug form components
             JTextField name = new JTextField();
             JTextField type = new JTextField();
             String[] pr = {"Low","Medium","High","Critical"};
@@ -66,6 +74,7 @@ public class TesterFrame extends JFrame {
             JTextField screenshot = new JTextField();
             JButton choose = new JButton("Choose File");
 
+            // opens the file explorer to choose a file for the screenshot option
             choose.addActionListener(ev -> {
                 JFileChooser jf = new JFileChooser();
                 int r = jf.showOpenDialog(this);
@@ -75,6 +84,8 @@ public class TesterFrame extends JFrame {
                 }
             });
 
+            // defines the fields that are to be used in the form
+            // assigns each field to the defined swing components above
             Object[] fields = {
                     "Name", name,
                     "Type", type,
@@ -85,8 +96,11 @@ public class TesterFrame extends JFrame {
                     choose
             };
 
+            // shows the form as a pop-up with the fields defined above
             int res = JOptionPane.showConfirmDialog(this, fields, "Add Bug", JOptionPane.OK_CANCEL_OPTION);
+
             if (res == JOptionPane.OK_OPTION) {
+                // extracts all form input and adds it to a Bug object constructor
                 Bug b = new Bug(
                         name.getText().trim(),
                         type.getText().trim(),
@@ -96,6 +110,7 @@ public class TesterFrame extends JFrame {
                         tester.getUsername(),
                         screenshot.getText().trim()
                 );
+                // saves in the database, refreshes all rows, and displays success message
                 Database.bugs.add(b);
                 Database.saveAll();
                 refreshTable();
@@ -104,18 +119,34 @@ public class TesterFrame extends JFrame {
         });
 
         assign.addActionListener(a -> {
+            // gets the currently selected row
             int sel = table.getSelectedRow();
+
+            // if no row is selected when the assign button is pressed, it shows an error message and returns
             if (sel < 0) { JOptionPane.showMessageDialog(this, "Select a bug"); return; }
+
+
             int bugId = (int) tableModel.getValueAt(sel, 0);
+
+            // adds a simple question pop-up for assigning the developer
             String dev = JOptionPane.showInputDialog(this, "Enter developer username to assign:");
+
+            // if nothing is inputted, return
             if (dev == null || dev.trim().isEmpty()) return;
             boolean found = false;
+
+            // loops through the users in the database, and cross-checks their name and role to the inputted dev
             for (bt.models.User u : Database.users) {
                 if (u.getUsername().equalsIgnoreCase(dev) && u.getRole().equalsIgnoreCase("Developer")) { found = true; break; }
             }
+
+            // return with an error message if the developer is not in the database
             if (!found) { JOptionPane.showMessageDialog(this, "Developer not found"); return; }
+
+            // loops through the database and cross-checks each bug's id with the one of the selected row
             for (Bug b : Database.bugs) {
                 if (b.getId() == bugId) {
+                    // changes the assignedTo variable to the inputted dev and saves it to the database
                     b.setAssignedTo(dev);
                     Database.saveAll();
                     refreshTable();
@@ -126,10 +157,19 @@ public class TesterFrame extends JFrame {
         });
 
         view.addActionListener(a -> {
+            // gets the currently selected row
             int sel = table.getSelectedRow();
+
+            // if no row is selected when the assign button is pressed, it shows an error message and returns
             if (sel < 0) { JOptionPane.showMessageDialog(this, "Select a bug"); return; }
+
+            // gets the screenshot path from the currently selected row (column 8)
             String path = (String) tableModel.getValueAt(sel, 8);
+
+            // returns with an error message when the row has no screenshot assigned to it
             if (path == null || path.isEmpty()) { JOptionPane.showMessageDialog(this, "No screenshot path"); return; }
+
+            // tries to open the screenshot, if it doesn't open, returns with an error message
             try {
                 Desktop.getDesktop().open(new File(path));
             } catch (Exception ex) {
@@ -137,12 +177,17 @@ public class TesterFrame extends JFrame {
             }
         });
 
+        // self-explanatory
         refresh.addActionListener(a -> refreshTable());
     }
 
     private void refreshTable() {
+        // deletes existing rows in the table
         tableModel.setRowCount(0);
+
+        // fetches all the bugs from the database
         for (Bug b : Database.bugs) {
+            // adds rows to the globally defined tableModel that is used for rows in the table section
             tableModel.addRow(new Object[]{
                     b.getId(), b.getName(), b.getProjectName(), b.getPriority(),
                     b.getLevel(), b.getStatus(), b.getAssignedTo(), b.getReportedBy(), b.getScreenshotPath()
