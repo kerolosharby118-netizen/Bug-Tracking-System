@@ -46,7 +46,7 @@ public class LoginFrame extends JFrame {
         JLabel r = new JLabel("Role:");
         r.setBounds(30,120,80,25);
         p.add(r);
-        cbRole = new JComboBox<>(new String[] {"Tester","Developer","PM","Admin"});
+        cbRole = new JComboBox<>(new String[] {"Admin","Tester","Developer","PM"});
         cbRole.setBounds(120,120,200,25);
         p.add(cbRole);
 
